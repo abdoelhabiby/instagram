@@ -22,7 +22,6 @@
                    datatype:'json',
                    data:{_token:"{{csrf_token()}}",post_id:postId},
                    beforeSend:function(){
-                     $(".fa-sync").removeClass('d-none');
                    },
                    success:function(data){
                      
@@ -179,6 +178,7 @@ $(".comment").keyup(function(){
 
 
 
+
 <div class="container pt-2" style="max-width: 830px; ">
 	  <div class="row" >
 	  	<div class="col-md-6 col-12" style="padding-left: 0;padding-right: 0">
@@ -254,13 +254,22 @@ $(".comment").keyup(function(){
               @foreach($post->comments as $comments)
              <div class="row" style="border-top: 1px solid rgba(0, 0, 0, 0.1">	  				
                <img src="{{asset($comments->img)}}" class="col-2 rounded-circle p-2" style="width: 60px; height: 60px;" >
-	  				 <div class="col-10" >
+	  				 <div class="col-8" >
 	  				  	<div class="pt-2">
 	  				  		 <strong>{{$comments->username}}</strong>
 		  				     <span>{!! nl2br($comments->pivot->comment) !!}</span>
 
 	  				  	</div>
 
+	  				  </div>
+	  				  <div class="col-2 row pt-1 seting">
+	  				  		<i class="fa fa-heart-o " style="position: relative;top: 7px;"></i>
+
+	  				  	 @if($comments->pivot->user_id == user()->id)
+	  				  	 	<span class="show_setting" style="margin-left: 7px;">...</span>
+                            
+	  				  	 @endif
+	  				  	
 	  				  </div>
              </div> 
                @endforeach
