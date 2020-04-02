@@ -86,6 +86,8 @@
     </div>
 
 <script type="text/javascript" src="{{asset('/')}}vendor/jquery/jquery.min.js"></script>
+    <script src="{{ asset('js/custom.js') }}"></script>
+
 
 @stack('scripts')
 

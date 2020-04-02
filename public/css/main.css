@@ -39,3 +39,36 @@ img{
 	width:100%;
 	height:100%;
 }
+
+.seting .show_setting{
+    display: none;
+}
+
+.seting:hover .show_setting{
+    display: block ;
+}
+
+
+.show_setting{
+    margin-left: 7px;
+    color: #333;
+   font-weight: bold;
+   cursor: pointer;
+}
+
+.to-card-body{
+    margin-top: -23px !important;
+    max-height: 320px; 
+    overflow: auto; 
+    min-height: 320px
+}
+
+
+
+.buttonSettingPost{
+    font-weight: bold;
+    margin: 13px;
+    font-size: 20px;
+    cursor: pointer;
+
+}

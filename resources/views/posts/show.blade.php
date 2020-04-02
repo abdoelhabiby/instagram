@@ -158,6 +158,83 @@ $(".comment").keyup(function(){
 
 
 
+
+$(document).on('click','.show_setting',function(){
+	
+	var get_comment_id = $(this).data('comment_id');
+
+
+	$("#showSettng").attr('data-id',get_comment_id);
+
+
+
+  $('#showSettng').modal('show');	
+
+});
+
+//-----------------------------------------------------
+
+$(document).on('click','.buton-delete',function(){
+
+   
+	var comment_id = $(this).closest("div #showSettng").attr("data-id");
+       
+
+	var postId = "{{$post->id}}";
+
+
+	 if(comment_id){
+
+		        $.ajax({  
+		           url:"{{route('delete')}}",
+		           method:'post',
+		           datatype:'json',
+		           data:{_token:"{{csrf_token()}}",comment:comment_id,post_id:postId},
+		           beforeSend:function(){
+                      	 $(".deleteLoading").removeClass('d-none');
+
+		           },
+		           success:function(data){
+                      if(data.status == "ok"){
+                          var getPareeent = ".comment-" + comment_id;
+                        setTimeout(function(){
+                        	 $(getPareeent).remove();
+                      	     $(".deleteLoading").addClass('d-none');
+                      	     $('#showSettng').modal('hide');	
+                        },1000); 
+
+                      }
+
+		           },
+		           error:function(data){
+
+		             if(data.status == 401){
+
+		                window.location.href = "{{route('login')}}";
+		             }
+		              if(data.status == 404){
+	                     $('#showSettng').modal('hide');	
+		             }
+
+		           }
+		        
+		       }); //end ajax
+	 }
+});
+
+//-------------------------------------------------------------------
+
+$(".buttonSettingPost").click(function(){
+	$("#showSettngPost").modal('show');
+
+});
+
+
+
+
+
+
+
 //-------------------------------------------------------------------
 
 
@@ -169,14 +246,7 @@ $(".comment").keyup(function(){
 @endpush
 
 
-
-
-
-
 @section('content')
-
-
-
 
 
 <div class="container pt-2" style="max-width: 830px; ">
@@ -195,10 +265,44 @@ $(".comment").keyup(function(){
 
       @can('myAccount',$post->user)
                <div class=" d-inline float-right">
-                   <a href="" class="btn btn-secondary " style="color: #FFF; margin: 13px;">...</a>
+                   <span  class="buttonSettingPost">
+                     ...
+                   </span>
                </div>
 
                <div class="clearfix"></div>
+
+               <!-- ----------------modal to post ------------------------------ -->
+
+		<div class="modal fade " id="showSettngPost"  tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+		  <div class="modal-dialog modal-sm">
+		    <div class="modal-content">
+
+		      <div class="modal-body text-center">
+		         	<div class="mt-2 mb-2">
+		         		<a  href="{{route('post.edit',$post->id)}}" class="btn btn-secondary  "> 
+		         	     edit
+		         	   </a>
+		         	   <br>
+		         	   <hr> 
+                         <form method="post" action="{{route('post.destroy',$post->id)}}">
+                         	@method('DELETE')
+                         	@csrf
+                         	<button type="submit" class="btn btn-danger">delete</button>
+                         	
+                         </form>
+
+		      
+		           </div>
+		         	 <hr> 
+		         	
+		        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+
+		      </div>
+
+		    </div>
+		  </div>
+		</div>
 
 
       @else
@@ -233,7 +337,7 @@ $(".comment").keyup(function(){
 
 	  					<hr>
 	  				</div>
-	  			<div class="card-body pt-0" style=" margin-top: -23px !important;max-height: 320px; overflow: auto; min-height: 320px">
+	  			<div class="card-body pt-0 to-card-body">
 
 	  				<div class="row " >
 
@@ -252,21 +356,28 @@ $(".comment").keyup(function(){
 	  	<div class="comments">
              @if($post->comments->count() > 0)
               @foreach($post->comments as $comments)
-             <div class="row" style="border-top: 1px solid rgba(0, 0, 0, 0.1">	  				
+             <div class="row comment-{{$comments->pivot->id}}" style="border-top: 1px solid rgba(0, 0, 0, 0.1">	  				
                <img src="{{asset($comments->img)}}" class="col-2 rounded-circle p-2" style="width: 60px; height: 60px;" >
 	  				 <div class="col-8" >
 	  				  	<div class="pt-2">
 	  				  		 <strong>{{$comments->username}}</strong>
-		  				     <span>{!! nl2br($comments->pivot->comment) !!}</span>
+		  				     <span class="comment_value">{!! nl2br($comments->pivot->comment) !!}</span>
 
 	  				  	</div>
 
 	  				  </div>
 	  				  <div class="col-2 row pt-1 seting">
 	  				  		<i class="fa fa-heart-o " style="position: relative;top: 7px;"></i>
+	  				  	 @if($post->user->id == user()->id)	
+	  				  	     <span  class="show_setting" data-toggle="modal" data-comment_id="{{$comments->pivot->id}}" >
+								  ...
+						    </span>
 
-	  				  	 @if($comments->pivot->user_id == user()->id)
-	  				  	 	<span class="show_setting" style="margin-left: 7px;">...</span>
+	  				  	 @elseif($comments->pivot->user_id == user()->id)
+
+                            <span  class="show_setting" data-toggle="modal" data-comment_id="{{$comments->pivot->id}}" >
+								  ...
+						    </span>
                             
 	  				  	 @endif
 	  				  	
@@ -311,6 +422,44 @@ $(".comment").keyup(function(){
 	  	</div>
 	  </div>
 </div>
+
+
+
+
+
+<!-- Small modal -->
+
+
+<!-- ----------------to comment ------------------------------ -->
+
+
+
+<div class="modal fade " id="showSettng"  tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+
+      <div class="modal-body text-center">
+         	<div class="mt-2 mb-2">
+         		<button class="btn btn-danger buton-delete " data-toggle="modal"> 
+         	     delete
+         	   </button>
+         	   <br>
+                <i class="fas fa-spinner fa-spin deleteLoading d-none mt-1"></i>
+
+           </div>
+         	 <hr> 
+         	
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+
+
 
 
 @endsection

@@ -31,7 +31,14 @@ Route::group(['middleware'=>'auth'],function(){
 
 
 	    Route::post('/user/comment',"CommentsController@store")->name('comment');
+	    Route::post('/user/comment/delete',"CommentsController@destroy")->name('delete');
 
 
 
 });
+
+
+
+
+
+
