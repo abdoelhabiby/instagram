@@ -9,13 +9,24 @@ use Intervention\Image\Facades\Image;
 use App\Post;
 use App\User;
 
+use Illuminate\Support\Facades\Cache;
+
 class ProfileController extends Controller
 {
 
 //--------------------------------------------------------
     public function index(User $user)
     {    
-        return view('home',compact('user'));
+        
+        $countPost = Cache::remember('key-user'.$user->id,now()->addSeconds(30),function() use($user){
+            return $user->posts->count();
+        });        
+
+
+
+
+
+        return view('profile.index',compact(['user','countPost']));
     }
 //--------------------------------------------------------
 

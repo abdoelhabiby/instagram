@@ -7,8 +7,28 @@ use Illuminate\Http\Request;
 
 use Intervention\Image\Facades\Image;
 
+use App\Http\Resources\CommentCollection;
+
 class PostsController extends Controller
 {
+
+//---------------------------------------------------------------------
+
+
+
+    public function index()
+    {
+        $followingProfile = user()->following->pluck('pivot.profile_id');
+
+        $followingPosts = Post::with('user')->whereIn('user_id',$followingProfile)->latest()->paginate(5);
+
+  
+       $getPosts = CommentCollection::collection($followingPosts);
+
+
+       
+        return view('welcome',compact('getPosts'));
+    }
 
 //---------------------------------------------------------------------
 
@@ -62,7 +82,6 @@ class PostsController extends Controller
     public function show(post $post)
     {
 
-       //return dd($post->comments);
 
         return view('posts.show',compact('post'));
     }
@@ -72,7 +91,12 @@ class PostsController extends Controller
 
     public function edit(post $post)
     {
-        //
+          if($post->user_id == user()->id){
+                return view('posts.edit',compact('post'));
+             }else{
+                abort(404);
+             }
+
     }
 
 //---------------------------------------------------------------------
@@ -80,7 +104,21 @@ class PostsController extends Controller
 
     public function update(Request $request, post $post)
     {
-        //
+            if($post->user_id == user()->id){
+               
+               $validate = $request->validate([
+                   
+                   "caption" => 'required|string|min:1'
+               ]);
+
+               $post->update($validate);
+
+               return redirect(route('post.show',$post->id));
+                
+
+             }else{
+                abort(404);
+             }
     }
 
 //---------------------------------------------------------------------
@@ -88,6 +126,13 @@ class PostsController extends Controller
 
     public function destroy(post $post)
     {
-        //
+            if($post->user_id == user()->id){
+
+               $post->delete();
+
+               return redirect(route('home'));
+             }else{
+                abort(404);
+             }
     }
 }

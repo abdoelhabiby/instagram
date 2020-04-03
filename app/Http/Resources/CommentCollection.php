@@ -16,9 +16,12 @@ class CommentCollection extends JsonResource
     public function toArray($request)
     {
         return [
-           "id" => $this->id,
-           "post_id" => $this->post_id,
-           "comment" => $this->comment,
+           "id" => $this->id, 
+           "img" => $this->img,
+           "caption" => $this->caption,
+           "user_username" => $this->user->username,
+           "user_img" => $this->user->img,
         ];
     }
 }
+

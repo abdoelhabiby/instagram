@@ -61,6 +61,55 @@ class CommentsController extends Controller
     }
 
 
+//-----------------------------comment from page home---------------------------
+  
+  public function commentIndex(){
+
+  if(request()->ajax() && request()->post_id && request()->comment){
+
+        $validate = Validator::make(request()->all(),[
+            'post_id' => 'required|numeric',
+            'comment' => 'required|string|min:1'
+        ]);
+
+        if($validate->fails()){
+          return $this->responseStatus(null ,null,'false',404);
+        }
+       
+
+        $post = Post::find(request()->post_id); 
+    
+       if($post != null ){
+        $comment = Comment::create([
+            'user_id' => user()->id,
+            'post_id' => $post->id,
+            'comment' => request()->comment
+        ]);
+
+         $commentText = $comment->comment;
+         $linkUser = $comment->user->username;
+         
+         $response = ['comment' => $commentText,'username' => $linkUser];
+         
+          return $this->responseStatus($response ,null,'ok',200);
+
+       }else{
+           return $this->notFound();
+
+       }
+
+      }else{
+
+           return $this->notFound();
+
+      }
+
+
+
+  }  
+
+
+
 //----------------------------------------------------------
 
 
@@ -135,6 +184,8 @@ class CommentsController extends Controller
 }
 
 //----------------------------------------------------------
+
+
 
 
   

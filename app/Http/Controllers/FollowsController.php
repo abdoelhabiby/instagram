@@ -85,7 +85,13 @@ class FollowsController extends Controller
    	  		  return $this->notFound();
    	  	}
        
-        $post = Post::find(request()->post_id); 
+        $post = Post::find(request()->post_id);
+
+        $checkIfLiked = Like::where("post_id",$post->id)->where('user_id',user()->id)->first();
+
+        if($checkIfLiked != null){
+          return $this->responseStatus(null,"هعملك بلوك يا علق",'error',404);
+        } 
     
        if($post != null ){
        	  Like::create(['user_id' => user()->id,'post_id' => $post->id]);

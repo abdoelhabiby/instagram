@@ -36,4 +36,13 @@ class Post extends Model
     }
 
 
+    public function commentsDesc(){
+
+         return $this->belongsToMany(User::class,'comments')->withPivot(['comment','id'])->orderBy('pivot_id','desc');
+    }
+
+
+
+
+
 }

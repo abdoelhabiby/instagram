@@ -1,100 +1,319 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+@extends('layouts.app')
 
-        <title>Laravel</title>
+@push('scripts')
 
-        <!-- Fonts -->
-        <link href="https://fonts.googleapis.com/css?family=Nunito:200,600" rel="stylesheet">
+<script type="text/javascript">
+    $(function(){
+         
+         $('body').on('click','.like_unlike',function(){
 
-        <!-- Styles -->
-        <style>
-            html, body {
-                background-color: #fff;
-                color: #636b6f;
-                font-family: 'Nunito', sans-serif;
-                font-weight: 200;
-                height: 100vh;
-                margin: 0;
-            }
+            
+            var postId = $(this).closest('div.card').data('id');
+            var countSpan = $(this).closest('div.card').find('.count_like');
+            var likeStatus = $(this).attr('data-status');
 
-            .full-height {
-                height: 100vh;
-            }
 
-            .flex-center {
-                align-items: center;
-                display: flex;
-                justify-content: center;
-            }
 
-            .position-ref {
-                position: relative;
-            }
+             if(likeStatus == 'liked'){
 
-            .top-right {
-                position: absolute;
-                right: 10px;
-                top: 18px;
-            }
+                 
+                        $(this).removeClass('fa-heart').addClass('fa-heart-o');
+                       $(this).attr('data-status','like');
 
-            .content {
-                text-align: center;
-            }
 
-            .title {
-                font-size: 84px;
-            }
 
-            .links > a {
-                color: #636b6f;
-                padding: 0 25px;
-                font-size: 13px;
-                font-weight: 600;
-                letter-spacing: .1rem;
-                text-decoration: none;
-                text-transform: uppercase;
-            }
+           $.ajax({   //send request to unlike
 
-            .m-b-md {
-                margin-bottom: 30px;
-            }
-        </style>
-    </head>
-    <body>
-        <div class="flex-center position-ref full-height">
-            @if (Route::has('login'))
-                <div class="top-right links">
-                    @auth
-                        <a href="{{ url('/home') }}">Home</a>
-                    @else
-                        <a href="{{ route('login') }}">Login</a>
+                   url:"{{route('unlike')}}",
+                   method:'post',
+                   datatype:'json',
+                   data:{_token:"{{csrf_token()}}",post_id:postId},
+                   beforeSend:function(){
+                   },
+                   success:function(data){
+                     
 
-                        @if (Route::has('register'))
-                            <a href="{{ route('register') }}">Register</a>
-                        @endif
-                    @endauth
+                     if($.isNumeric($(countSpan).text())){
+                        var getcount = parseInt($(countSpan).text() ) - 1 ;
+                        $(countSpan).text(getcount);
+
+                       }
+
+
+                   },
+                   error:function(data){
+
+                     if(data.status == 401){
+
+                        window.location.href = "{{route('login')}}";
+                     }
+
+
+                   }
+                
+
+               });
+
+             } //end if status = unlike
+
+
+             if(likeStatus == 'like'){
+
+                        $(this).addClass('fa-heart').removeClass('fa-heart-o');
+
+                        $(this).attr('data-status','liked');
+
+
+                 $.ajax({  
+
+                       url:"{{route('like')}}",
+                       method:'post',
+                       datatype:'json',
+                       data:{_token:"{{csrf_token()}}",post_id:postId},
+                       beforeSend:function(){
+                       },
+                       success:function(data){
+
+
+
+                        if($.isNumeric($(countSpan).text())){
+                            var getcount = parseInt($(countSpan).text() ) + 1 ;
+                            $(countSpan).text(getcount);
+
+                           }
+
+                       },
+                       error:function(data){
+
+                         if(data.status == 401){
+
+                            window.location.href = "{{route('login')}}";
+                         }
+
+                       }
+                    
+                   });
+
+
+             } //end if status = like
+
+         });
+
+
+
+
+    });
+
+
+</script>
+
+
+
+
+@endpush
+
+
+@section('content')
+
+    @if($getPosts->count() > 0)
+
+
+         <div class="container"  style="max-width: 500px; margin: auto;">
+        
+        @foreach($getPosts as $allPosts)
+
+            <div class="card mb-4" data-id ="{{$allPosts->id}}">
+                 <div class="card-header" style="background: #FFF;">
+                     <a href="{{route('profile',$allPosts->user->username)}}" style="color: #333; text-decoration: none;">
+                           <img src="{{asset($allPosts->user->img)}}" style="width: 40px;height: 40px;" class="rounded-circle">
+                           <div class="h5 d-inline font-weight-bold">
+                             {{$allPosts->user->username}}  
+                          </div>
+                      </a>
+                   </div>
+                <div class="card-body">
+                              <div class="text-center mb-2">
+                                <img src="{{asset($allPosts->img)}}" style="height: 370px; width: 90%">
+                              </div> 
                 </div>
-            @endif
 
-            <div class="content">
-                <div class="title m-b-md">
-                    Laravel
+    <!-- ---------------like and comment ----------------------------- -->
+
+  <?php
+      
+      $user_like =  $allPosts->likes->where('user_id',user()->id)->first();
+  ?>
+
+
+                <div class="card-footer" style="background: #FFF;">
+                        <span>
+                         <i class="fa {{$user_like != null ? 'fa-heart' : 'fa-heart-o'}} mr-1 like_unlike" 
+                         data-status="{{$user_like != null ? 'liked' : 'like'}}" 
+                         style="font-size: 1.8em;" id="yes"></i>
+                         </span>
+                         <span>
+                         <a href="{{route('post.show',$allPosts->id)}}" style="color: #333; text-decoration: none;">
+
+                            <i class="fa fa-comment-o  mr-1" style="font-size: 1.8em;"></i>
+                        </a>
+                         </span>
+                         <span>
+                                <i class="fa fa-share  mr-1 " style="font-size: 1.8em;"></i>
+                         </span>
+
+                         <div class="countlikes">
+                             <strong>Liked by </strong><span class="count_like">{{$allPosts->likes->count()}}</span>
+                         </div>
+                         <div class="captionAndComment">
+                             <div class="caption">
+                                <strong>{{$allPosts->user->username}} </strong>
+                                <span class="pr-2">
+                                    {{ $allPosts->caption}}
+                                </span>
+                                <br>
+                              @if($allPosts->commentsDesc->count() > 3)  
+                                <a href="{{route('post.show',$allPosts->id)}}" style="text-decoration: none;color: gray">
+                                    view all {{$allPosts->comments->count()}} comments
+                                </a>
+                               @endif 
+                             </div>
+                             <div class="showLatestComment">
+
+
+                               @if($allPosts->commentsDesc != null) 
+                                @foreach($allPosts->commentsDesc()->limit(3)->latest()->get() as $comments)
+                                 <div>
+                                    <strong>
+                                     <a href="{{route('profile',$comments->username)}}" style="color: #333; text-decoration: none;">
+
+                                        {{$comments->username}} 
+                                    </a>
+                                    </strong>
+                                    <span class="pr-2">
+                                        {{ $comments->pivot->comment}}
+                                    </span>
+                                 </div>
+
+                                @endforeach
+                               @endif 
+
+                             </div>
+                         </div>
                 </div>
 
-                <div class="links">
-                    <a href="https://laravel.com/docs">Docs</a>
-                    <a href="https://laracasts.com">Laracasts</a>
-                    <a href="https://laravel-news.com">News</a>
-                    <a href="https://blog.laravel.com">Blog</a>
-                    <a href="https://nova.laravel.com">Nova</a>
-                    <a href="https://forge.laravel.com">Forge</a>
-                    <a href="https://vapor.laravel.com">Vapor</a>
-                    <a href="https://github.com/laravel/laravel">GitHub</a>
+    <!-- ---------------comment post ----------------------------- -->
+
+                 <div class="card-footer " style="background: #FFF; padding: 3px 6px 3px 15px;">
+                   <div class="row">
+  
+
+                     <textarea class="col-9 comment" rows="2" style="border: none;outline: 0; resize: none;" placeholder="Add comment">
+                        
+                     </textarea>
+
+                       <div class="col-3">
+                        <button class="btn btn-secondary disabled addComment mt-1" style="cursor: unset; ">Post</button></div>
+                    </div>
+
                 </div>
             </div>
+         @endforeach   
+
+            <div class="d-flex justify-content-center mt-5">
+
+            {{ $getPosts->appends(request()->query())->links() }}
+
+             </div>
+
         </div>
-    </body>
-</html>
+
+     @endif
+
+
+@endsection
+
+@push('scripts')
+
+<script type="text/javascript">
+    $(function(){
+          
+      $(document).on("keyup",'.comment',function(){
+
+         if($(this).val().length > 0){
+
+            $(this).closest("div.card").find('.addComment').removeClass('disabled');
+
+         }else{
+            $(this).closest("div.card").find('.addComment').addClass('disabled');
+         }
+
+
+      });
+
+
+          //-------------------------------------------------
+
+      $(document).on('click','.addComment',function(){
+
+        var comment = $(this).closest("div.card").find(".comment");
+        var appendComment = $(this).closest("div.card").find(".showLatestComment");
+        var postId = $(this).closest("div.card").data('id');
+
+          if(comment.val().length > 0){
+
+                $.ajax({  
+                   url:"{{route('commentIndex')}}",
+                   method:'post',
+                   datatype:'html',
+                   data:{_token:"{{csrf_token()}}",post_id:postId,comment:comment.val()},
+                   beforeSend:function(){
+
+                      $(comment).val('');
+
+                   },
+                   success:function(data){
+
+                    var username = data.data.username;
+                    var comment = data.data.comment;
+                  
+                  var html =  ` <div>
+                                    <strong>
+                                     <a href="/${username}" style="color: #333; text-decoration: none;">
+
+                                        ${username} 
+                                    </a>
+                                    </strong>
+                                    <span class="pr-2">
+                                        ${comment}
+                                    </span>
+                                 </div>`;
+
+
+                      $(appendComment).append(html);
+
+
+                   },
+                   error:function(data){
+
+                     if(data.status == 401){
+
+                        window.location.href = "{{route('login')}}";
+                     }
+
+                   }
+                
+               }); //end ajax
+
+
+
+          } // end if comment > 0
+
+
+      });
+
+
+
+    });
+</script>
+
+@endpush

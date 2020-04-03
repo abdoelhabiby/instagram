@@ -62,7 +62,8 @@
             <div class="d-flex pt-4">
                 <div>
                     <span class="mr-5">
-                      <strong>{!!$user->posts->count()!!} </strong>posts
+
+                      <strong>{!!$countPost!!} </strong>posts
                     </span>
                     <span class="mr-5"><strong class="change_count">{{$user->followers->count()}} </strong> followers</span>
                     <span class="mr-5"><strong>{{$user->following->count()}} </strong> following</span>
@@ -95,8 +96,11 @@
                <a href="{{route('post.show',$post->id)}}">
 
                   <div class="overlay">
-                    <i class="fa fa-lg  fa-heart mr-3" style="color:#FFF"> 55</i>
-                    <i class="fa  fa-lg fa-comment" style="color:#FFF"> 56</i>
+                    <i class="fa fa-lg  fa-heart mr-3" style="color:#FFF"> {{$post->likes()->get()->count()}}
+                    </i>
+                    <i class="fa  fa-lg fa-comment" style="color:#FFF"> 
+                      {{$post->comments()->get()->count()}}
+                    </i>
                   </div>
 
                   <div class="img-fix ">
