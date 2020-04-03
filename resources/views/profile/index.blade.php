@@ -47,7 +47,7 @@
 
                 @else
                      <button class="btn btn-primary">
-                            Follow
+                            <a href="{{route('login')}}" style="color: #FFF;text-decoration: none;">Follow</a>
                      </button>
 
 

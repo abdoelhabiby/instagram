@@ -126,7 +126,7 @@
                  <div class="card-header" style="background: #FFF;">
                      <a href="{{route('profile',$allPosts->user->username)}}" style="color: #333; text-decoration: none;">
                            <img src="{{asset($allPosts->user->img)}}" style="width: 40px;height: 40px;" class="rounded-circle">
-                           <div class="h5 d-inline font-weight-bold">
+                           <div class="h5 d-inline font-weight-bold ml-2">
                              {{$allPosts->user->username}}  
                           </div>
                       </a>
