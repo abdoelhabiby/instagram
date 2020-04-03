@@ -87,10 +87,10 @@
 
   <hr>
 
-    @if($user->posts->count() > 0)
+    @if($allPosts->total() > 0)
   <div class="row">
 
-      @foreach($user->posts as $post)
+      @foreach($allPosts as $post)
           <div class="col-lg-4 col-md-6 col-sm-12" >
               <div class="imgs-body">
                <a href="{{route('post.show',$post->id)}}">
@@ -118,7 +118,11 @@
     @endif
 
 
+            <div class="d-flex justify-content-center mt-5">
 
+            {{ $allPosts->appends(request()->query())->links() }}
+
+             </div>
 
   </div>
 @endsection

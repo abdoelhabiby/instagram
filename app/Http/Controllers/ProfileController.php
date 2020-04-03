@@ -18,6 +18,9 @@ class ProfileController extends Controller
     public function index(User $user)
     {    
         
+       $allPosts = $user->posts()->latest()->paginate(9);
+
+
         $countPost = Cache::remember('key-user'.$user->id,now()->addSeconds(30),function() use($user){
             return $user->posts->count();
         });        
@@ -25,8 +28,7 @@ class ProfileController extends Controller
 
 
 
-
-        return view('profile.index',compact(['user','countPost']));
+        return view('profile.index',compact(['user','allPosts','countPost']));
     }
 //--------------------------------------------------------
 
