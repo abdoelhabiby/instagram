@@ -1,117 +1,5 @@
 @extends('layouts.app')
 
-@push('scripts')
-
-<script type="text/javascript">
-    $(function(){
-         
-         $('body').on('click','.like_unlike',function(){
-
-            
-            var postId = $(this).closest('div.card').data('id');
-            var countSpan = $(this).closest('div.card').find('.count_like');
-            var likeStatus = $(this).attr('data-status');
-
-
-
-             if(likeStatus == 'liked'){
-
-                 
-                        $(this).removeClass('fa-heart').addClass('fa-heart-o');
-                       $(this).attr('data-status','like');
-
-
-
-           $.ajax({   //send request to unlike
-
-                   url:"{{route('unlike')}}",
-                   method:'post',
-                   datatype:'json',
-                   data:{_token:"{{csrf_token()}}",post_id:postId},
-                   beforeSend:function(){
-                   },
-                   success:function(data){
-                     
-
-                     if($.isNumeric($(countSpan).text())){
-                        var getcount = parseInt($(countSpan).text() ) - 1 ;
-                        $(countSpan).text(getcount);
-
-                       }
-
-
-                   },
-                   error:function(data){
-
-                     if(data.status == 401){
-
-                        window.location.href = "{{route('login')}}";
-                     }
-
-
-                   }
-                
-
-               });
-
-             } //end if status = unlike
-
-
-             if(likeStatus == 'like'){
-
-                        $(this).addClass('fa-heart').removeClass('fa-heart-o');
-
-                        $(this).attr('data-status','liked');
-
-
-                 $.ajax({  
-
-                       url:"{{route('like')}}",
-                       method:'post',
-                       datatype:'json',
-                       data:{_token:"{{csrf_token()}}",post_id:postId},
-                       beforeSend:function(){
-                       },
-                       success:function(data){
-
-
-
-                        if($.isNumeric($(countSpan).text())){
-                            var getcount = parseInt($(countSpan).text() ) + 1 ;
-                            $(countSpan).text(getcount);
-
-                           }
-
-                       },
-                       error:function(data){
-
-                         if(data.status == 401){
-
-                            window.location.href = "{{route('login')}}";
-                         }
-
-                       }
-                    
-                   });
-
-
-             } //end if status = like
-
-         });
-
-
-
-
-    });
-
-
-</script>
-
-
-
-
-@endpush
-
 
 @section('content')
 
@@ -123,13 +11,22 @@
         @foreach($getPosts as $allPosts)
 
             <div class="card mb-4" data-id ="{{$allPosts->id}}">
-                 <div class="card-header" style="background: #FFF;">
+                 <div class="card-header " style="background: #FFF;">
+
+                 <div class="row">
+                  <div class="col-10 pl-0">
                      <a href="{{route('profile',$allPosts->user->username)}}" style="color: #333; text-decoration: none;">
                            <img src="{{asset($allPosts->user->img)}}" style="width: 40px;height: 40px;" class="rounded-circle">
                            <div class="h5 d-inline font-weight-bold ml-2">
                              {{$allPosts->user->username}}  
                           </div>
                       </a>
+                    </div>
+                    <div class="col-2 pr-0">
+                       <span class="showSetting" data-toggle="modal" data-target="#showSettngPost">   ...
+                       </span>
+                    </div>
+                    </div> 
                    </div>
                 <div class="card-body">
                               <div class="text-center mb-2">
@@ -207,7 +104,7 @@
                    <div class="row">
   
 
-                     <textarea class="col-9 comment" rows="2" style="border: none;outline: 0; resize: none;" placeholder="Add comment">
+                     <textarea class="col-9 commentPost" rows="2" style="border: none;outline: 0; resize: none;" placeholder="Add comment">
                         
                      </textarea>
 
@@ -230,90 +127,28 @@
      @endif
 
 
-@endsection
 
-@push('scripts')
+<!-- --------------------------------------------------- -->
 
-<script type="text/javascript">
-    $(function(){
+<div class="modal fade " id="showSettngPost"  tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+
+      <div class="modal-body text-center">
+          <div class="mt-2 mb-2">
+
+           </div>
+           <hr> 
           
-      $(document).on("keyup",'.comment',function(){
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
 
-         if($(this).val().length > 0){
+      </div>
 
-            $(this).closest("div.card").find('.addComment').removeClass('disabled');
-
-         }else{
-            $(this).closest("div.card").find('.addComment').addClass('disabled');
-         }
-
-
-      });
-
-
-          //-------------------------------------------------
-
-      $(document).on('click','.addComment',function(){
-
-        var comment = $(this).closest("div.card").find(".comment");
-        var appendComment = $(this).closest("div.card").find(".showLatestComment");
-        var postId = $(this).closest("div.card").data('id');
-
-          if(comment.val().length > 0){
-
-                $.ajax({  
-                   url:"{{route('commentIndex')}}",
-                   method:'post',
-                   datatype:'html',
-                   data:{_token:"{{csrf_token()}}",post_id:postId,comment:comment.val()},
-                   beforeSend:function(){
-
-                      $(comment).val('');
-
-                   },
-                   success:function(data){
-
-                    var username = data.data.username;
-                    var comment = data.data.comment;
-                  
-                  var html =  ` <div>
-                                    <strong>
-                                     <a href="/${username}" style="color: #333; text-decoration: none;">
-
-                                        ${username} 
-                                    </a>
-                                    </strong>
-                                    <span class="pr-2">
-                                        ${comment}
-                                    </span>
-                                 </div>`;
-
-
-                      $(appendComment).append(html);
-
-
-                   },
-                   error:function(data){
-
-                     if(data.status == 401){
-
-                        window.location.href = "{{route('login')}}";
-                     }
-
-                   }
-                
-               }); //end ajax
+    </div>
+  </div>
+</div>
 
 
 
-          } // end if comment > 0
 
-
-      });
-
-
-
-    });
-</script>
-
-@endpush
+@endsection

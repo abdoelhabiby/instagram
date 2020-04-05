@@ -21,9 +21,9 @@ class ProfileController extends Controller
        $allPosts = $user->posts()->latest()->paginate(9);
 
 
-        $countPost = Cache::remember('key-user'.$user->id,now()->addSeconds(30),function() use($user){
-            return $user->posts->count();
-        });        
+        $countPost =  $user->posts->count();
+            
+       
 
 
 

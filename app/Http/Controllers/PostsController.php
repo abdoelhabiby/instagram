@@ -64,11 +64,11 @@ class PostsController extends Controller
         $img->save(public_path('images/posts/'.$name));
 
         $validate['img'] = 'images/posts/'.$name;
-        $validate['user_id'] = auth()->user()->id;
+        $validate['user_id'] = user()->id;
 
         Post::create($validate);
 
-        $url = auth()->user()->username;
+        $url = user()->username;
 
 
         return redirect("/".$url);
@@ -130,7 +130,11 @@ class PostsController extends Controller
 
                $post->delete();
 
-               return redirect(route('home'));
+                $url = auth()->user()->username;
+
+
+                return redirect("/".$url);
+               
              }else{
                 abort(404);
              }

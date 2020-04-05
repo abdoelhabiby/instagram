@@ -32,7 +32,7 @@ class FollowsController extends Controller
         $profile = User::find(request()->profile_id); 
         $profile_follow = Follow::where('user_id',user()->id)->where('profile_id',request()->profile_id)->first();
     
-       if($profile != null && $profile_follow == null){
+       if($profile != null && $profile_follow == null && $profile->id != user()->id){
        	  Follow::create(['user_id' => user()->id,'profile_id' => $profile->id]);
        	  return $this->responseStatus(null,null,'ok',200);
 

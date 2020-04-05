@@ -4,7 +4,11 @@
                <img src="{{asset($comment->user->img)}}" class="col-2 rounded-circle p-2" style="width: 60px; height: 60px;">
 	  				 <div class="col-8" >
 	  				  	<div class="pt-2">
-	  				  		 <strong>{{$comment->user->username}}</strong>
+	  				  		 <strong>
+	  				  		 	<a href="{{route('profile',$comment->user->username)}}" style="color: #333;text-decoration: none;">
+	  				  		 	{{$comment->user->username}}
+	  				  		 </a>
+	  				  		 </strong>
 		  				     <span class="comment_value">{!! nl2br($comment->comment) !!}</span>
 
 	  				  	</div>

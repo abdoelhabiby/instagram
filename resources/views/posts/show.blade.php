@@ -1,256 +1,11 @@
 @extends('layouts.app')
 
 
-@push('scripts')
-
-
-<script type="text/javascript">
-  $(function(){
-
-    $(document).on('click','.like_unlike',function(){
-      var postId = "{{$post->id}}";
-      var status = $(this).attr('data-status');
-   
-        
-        if (status == 'like') {
-
-
-                $.ajax({   //send request to unlike
-
-                   url:"{{route('unlike')}}",
-                   method:'post',
-                   datatype:'json',
-                   data:{_token:"{{csrf_token()}}",post_id:postId},
-                   beforeSend:function(){
-                   },
-                   success:function(data){
-                     
-		             $(".like_unlike").removeClass('fa-heart').addClass('fa-heart-o');
-		             $(".like_unlike").attr('data-status','unlike');
-
-		             if($.isNumeric($('.count_like').text())){
-		                var getcount = parseInt($('.count_like').text() ) - 1 ;
-		                $('.count_like').text(getcount);
-
-		               }
-
-
-                   },
-                   error:function(data){
-
-                     if(data.status == 401){
-
-                        window.location.href = "{{route('login')}}";
-                     }
-
-
-                   }
-                
-
-               });
-
-        }
-
-
-        if(status == 'unlike'){  //send request to like
-
-         $.ajax({  
-
-           url:"{{route('like')}}",
-           method:'post',
-           datatype:'json',
-           data:{_token:"{{csrf_token()}}",post_id:postId},
-           beforeSend:function(){
-           },
-           success:function(data){
-
-
-             $(".like_unlike").removeClass('fa-heart-o').addClass('fa-heart');
-		       $(".like_unlike").attr('data-status','like');
-
-            if($.isNumeric($('.count_like').text())){
-                var getcount = parseInt($('.count_like').text() ) + 1 ;
-                $('.count_like').text(getcount);
-
-               }
-
-           },
-           error:function(data){
-
-             if(data.status == 401){
-
-                window.location.href = "{{route('login')}}";
-             }
-
-           }
-        
-       });
-
-        } // end else
-    
-
-    });
-//-------------------------------------------------------------------
-
-$(".comment_focus").click(function(){
-   
-   $(".comment").focus();
-
-});
-//-------------------------------------------------------------------
-$(".comment").keyup(function(){
-    
-
-   if($(this).val().length > 0){
-
-   $(".topost").removeClass('disabled');
-   }else{
-   	   $(".topost").addClass('disabled');
-
-   }
-   
-});
-
-//-------------------------------------------------------------------
-
- $(".topost").click(function(){
-     
-     if(! $(this).hasClass('disabled')){
-          var postId = "{{$post->id}}";
-          var user_comment = $(".comment").val();
-        
-        if(user_comment.length > 0){
-
-		        $.ajax({  
-		           url:"{{route('comment')}}",
-		           method:'post',
-		           datatype:'html',
-		           data:{_token:"{{csrf_token()}}",post_id:postId,comment:user_comment},
-		           beforeSend:function(){
-
-		           	  $(".comment").val('');
-
-		           },
-		           success:function(data){
-
-
-		           $(".comments").append(data.data);
-
-		           },
-		           error:function(data){
-
-		             if(data.status == 401){
-
-		                window.location.href = "{{route('login')}}";
-		             }
-
-		           }
-		        
-		       }); //end ajax
-
-       }
-
-
-     }
-
- });
-
-
-
-
-
-$(document).on('click','.show_setting',function(){
-	
-	var get_comment_id = $(this).data('comment_id');
-
-
-	$("#showSettng").attr('data-id',get_comment_id);
-
-
-
-  $('#showSettng').modal('show');	
-
-});
-
-//-----------------------------------------------------
-
-$(document).on('click','.buton-delete',function(){
-
-   
-	var comment_id = $(this).closest("div #showSettng").attr("data-id");
-       
-
-	var postId = "{{$post->id}}";
-
-
-	 if(comment_id){
-
-		        $.ajax({  
-		           url:"{{route('delete')}}",
-		           method:'post',
-		           datatype:'json',
-		           data:{_token:"{{csrf_token()}}",comment:comment_id,post_id:postId},
-		           beforeSend:function(){
-                      	 $(".deleteLoading").removeClass('d-none');
-
-		           },
-		           success:function(data){
-                      if(data.status == "ok"){
-                          var getPareeent = ".comment-" + comment_id;
-                        setTimeout(function(){
-                        	 $(getPareeent).remove();
-                      	     $(".deleteLoading").addClass('d-none');
-                      	     $('#showSettng').modal('hide');	
-                        },1000); 
-
-                      }
-
-		           },
-		           error:function(data){
-
-		             if(data.status == 401){
-
-		                window.location.href = "{{route('login')}}";
-		             }
-		              if(data.status == 404){
-	                     $('#showSettng').modal('hide');	
-		             }
-
-		           }
-		        
-		       }); //end ajax
-	 }
-});
-
-//-------------------------------------------------------------------
-
-$(".buttonSettingPost").click(function(){
-	$("#showSettngPost").modal('show');
-
-});
-
-
-
-
-
-
-
-//-------------------------------------------------------------------
-
-
-  }); // end  open jquery
-</script>
-
-
-
-@endpush
-
-
 @section('content')
 
 
 <div class="container pt-2" style="max-width: 830px; ">
-	  <div class="row" >
+	  <div class="row post-show" data-id="{{$post->id}}">
 	  	<div class="col-md-6 col-12" style="padding-left: 0;padding-right: 0">
 	  		 <img src="{{asset($post->img)}}" class="w-100 h-100">
 	  	</div>
@@ -271,39 +26,6 @@ $(".buttonSettingPost").click(function(){
                </div>
 
                <div class="clearfix"></div>
-
-               <!-- ----------------modal to post ------------------------------ -->
-
-		<div class="modal fade " id="showSettngPost"  tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
-		  <div class="modal-dialog modal-sm">
-		    <div class="modal-content">
-
-		      <div class="modal-body text-center">
-		         	<div class="mt-2 mb-2">
-		         		<a  href="{{route('post.edit',$post->id)}}" class="btn btn-secondary  "> 
-		         	     edit
-		         	   </a>
-		         	   <br>
-		         	   <hr> 
-                         <form method="post" action="{{route('post.destroy',$post->id)}}">
-                         	@method('DELETE')
-                         	@csrf
-                         	<button type="submit" class="btn btn-danger">delete</button>
-                         	
-                         </form>
-
-		      
-		           </div>
-		         	 <hr> 
-		         	
-		        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-
-		      </div>
-
-		    </div>
-		  </div>
-		</div>
-
 
       @else
               <div class="d-inline">
@@ -360,7 +82,9 @@ $(".buttonSettingPost").click(function(){
                <img src="{{asset($comments->img)}}" class="col-2 rounded-circle p-2" style="width: 60px; height: 60px;" >
 	  				 <div class="col-8" >
 	  				  	<div class="pt-2">
-	  				  		 <strong>{{$comments->username}}</strong>
+	  				  		 <strong>
+                      <a href="{{route('profile',$comments->username)}}" style="color: #333;text-decoration: none;"> {{$comments->username}}</a>
+                    </strong>
 		  				     <span class="comment_value">{!! nl2br($comments->pivot->comment) !!}</span>
 
 	  				  	</div>
@@ -369,7 +93,7 @@ $(".buttonSettingPost").click(function(){
 	  				  <div class="col-2 row pt-1 seting">
 	  				  		<i class="fa fa-heart-o " style="position: relative;top: 7px;"></i>
 	  				  	 @if($post->user->id == user()->id)	
-	  				  	     <span  class="show_setting" data-toggle="modal" data-comment_id="{{$comments->pivot->id}}" >
+	  				  	     <span  class="show_setting" data-toggle="modal" data-comment_id="{{$comments->pivot->id}}">
 								  ...
 						    </span>
 
@@ -393,7 +117,7 @@ $(".buttonSettingPost").click(function(){
     ?> 
 	  			<div class="card-footer" style="background: #FFF">
 	  				<span>
-                 <i class="fa {{$like  ? 'fa-heart' : 'fa-heart-o'}} mr-1 like_unlike" data-status="{{$like  ? 'like' : 'unlike'}}" style="font-size: 1.8em;"></i>
+                 <i  class="fa {{$like  ? 'fa-heart' : 'fa-heart-o'}} mr-1 like_unlike_post" data-status="{{$like  ? 'like' : 'unlike'}}" style="font-size: 1.8em;"></i>
 	  				</span>
 	 				<span>
 	  					<i class="fa fa-comment-o  mr-1 comment_focus" style="font-size: 1.8em;"></i>
@@ -458,7 +182,37 @@ $(".buttonSettingPost").click(function(){
 </div>
 
 
+   <!-- ----------------modal to post ------------------------------ -->
 
+    <div class="modal fade " id="showSettngPost"  tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+
+          <div class="modal-body text-center">
+              <div class="mt-2 mb-2">
+                <a  href="{{route('post.edit',$post->id)}}" class="btn btn-secondary  "> 
+                   edit
+                 </a>
+                 <br>
+                 <hr> 
+                         <form method="post" action="{{route('post.destroy',$post->id)}}">
+                          @method('DELETE')
+                          @csrf
+                          <button type="submit" class="btn btn-danger">delete</button>
+                          
+                         </form>
+
+          
+               </div>
+               <hr> 
+              
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+
+          </div>
+
+        </div>
+      </div>
+    </div>
 
 
 

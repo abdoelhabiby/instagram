@@ -65,7 +65,7 @@ img{
 
 
 
-.buttonSettingPost{
+.buttonSettingPost , .showSetting{
     font-weight: bold;
     margin: 13px;
     font-size: 20px;

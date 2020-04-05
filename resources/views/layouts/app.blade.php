@@ -99,101 +99,15 @@
     </div>
 
 <script type="text/javascript" src="{{asset('/')}}vendor/jquery/jquery.min.js"></script>
-    <script src="{{ asset('js/custom.js') }}"></script>
+
+    <script type="text/javascript"  src="{{ asset('js/showPost.js') }}"></script>
+    <script type="text/javascript"  src="{{ asset('js/welcome.js') }}"></script>
+    <script type="text/javascript"  src="{{ asset('js/profile.js') }}"></script>
 
 
 @stack('scripts')
 
-<script type="text/javascript">
-  $(function(){
 
-    $(document).on('click','.foll_unfol',function(){
-      var profileId = $(this).data('profile_id');
-      var status = $(this).attr('data-id');
- 
-        
-        if (status == 'yes') {
-
-
-                $.ajax({   //send request to unfollow
-
-                   url:"{{route('unfollow')}}",
-                   method:'post',
-                   datatype:'json',
-                   data:{_token:"{{csrf_token()}}",profile_id:profileId},
-                   beforeSend:function(){
-                     $(".fa-sync").removeClass('d-none');
-                   },
-                   success:function(data){
-                     
-                     $('.foll_unfol').text('Follow');
-                     $(".fa-sync").addClass('d-none');
-                     $('.foll_unfol').attr('data-id','no');
-
-                     if($.isNumeric($('.change_count').text())){
-                         var getcount = parseInt($('.change_count').text()) -1 ;
-                         $('.change_count').text(getcount);
-
-                     }
-
-                   },
-                   error:function(data){
-
-                     if(data.status == 401){
-
-                        window.location.href = "{{route('login')}}";
-                     }
-
-
-                   }
-                
-
-               });
-
-        }
-
-       if (status == 'no'){  //send request to follow
-
-         $.ajax({  
-
-           url:"{{route('follow')}}",
-           method:'post',
-           datatype:'json',
-           data:{_token:"{{csrf_token()}}",profile_id:profileId},
-           beforeSend:function(){
-             $(".fa-sync").removeClass('d-none');
-           },
-           success:function(data){
-
-            $('.foll_unfol').text('Following');
-            $('.foll_unfol').attr('data-id','yes');
-             $(".fa-sync").addClass('d-none');
-
-            if($.isNumeric($('.change_count').text())){
-                var getcount = parseInt($('.change_count').text() ) + 1 ;
-                $('.change_count').text(getcount);
-
-               }
-
-           },
-           error:function(data){
-
-             if(data.status == 401){
-
-                window.location.href = "{{route('login')}}";
-             }
-
-           }
-        
-       });
-
-        } // end else
-    
-
-    });
-
-  }); // end  open jquery
-</script>
 
 
 
