@@ -34,6 +34,9 @@ class FollowsController extends Controller
     
        if($profile != null && $profile_follow == null && $profile->id != user()->id){
        	  Follow::create(['user_id' => user()->id,'profile_id' => $profile->id]);
+         
+ 
+
        	  return $this->responseStatus(null,null,'ok',200);
 
        }else{

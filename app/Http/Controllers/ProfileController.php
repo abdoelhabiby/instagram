@@ -21,15 +21,94 @@ class ProfileController extends Controller
        $allPosts = $user->posts()->latest()->paginate(9);
 
 
-        $countPost =  $user->posts->count();
-            
-       
+            $countPost =  $user->posts->count();
+            $following =  $user->following()->orderBy('id','asc')->limit(10)->get();
+            $followers =  $user->followers()->orderBy('id','asc')->limit(10)->get();
+           
+           
 
 
-
-
-        return view('profile.index',compact(['user','allPosts','countPost']));
+        return view('profile.index',compact(['user','allPosts','countPost','followers','following']));
     }
+//--------------------------------------------------------
+
+
+        public function getfollowing(){
+
+            if(request()->ajax() && request()->lastId && request()->username){
+
+                 $user = User::where("username",request()->username)->first();
+
+                 if($user != null){
+                   $id = (int)request()->lastId;
+                     
+                $following =  $user->following()->where('profile_id','>',$id)->orderBy('id','asc')->limit(10)->get();
+
+                if($following->count() > 0){
+
+                    $html =  view('profile._following',compact(['user','following']))->render();
+
+                 return response(['data' => $html]);
+
+                   }else{
+
+                     return response(['data' => 'null']);
+                   }
+
+                 }
+
+
+            } //end if request is ajax
+
+
+
+
+
+
+        }
+
+
+
+//--------------------------------------------------------
+
+
+
+    public function getfollowers(){
+
+            if(request()->ajax() && request()->lastId && request()->username){
+
+                 $user = User::where("username",request()->username)->first();
+
+                 if($user != null){
+                   $id = (int)request()->lastId;
+                     
+                $followers =  $user->followers()->where('user_id','>',$id)->orderBy('id','asc')->limit(10)->get();
+
+           
+
+                if($followers->count() > 0){
+
+                    $html =  view('profile._followers',compact(['user','followers']))->render();
+
+                 return response(['data' => $html]);
+
+                   }else{
+
+                     return response(['data' => 'null']);
+                   }
+
+
+                 }
+
+
+            } //end if request is ajax
+
+
+
+
+
+
+        }
 //--------------------------------------------------------
 
  public function edit(){

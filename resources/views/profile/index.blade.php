@@ -15,7 +15,7 @@
         <div class="col-9 pt-4 pl-3">
             <div class="row">
                <div class="col-sm-4">
-                  <h2 class="font-weight-bold d-inline">{{$user->username}}</h2>
+                  <h4 class="font-weight-bold d-inline">{{$user->username}}</h4>
 
                </div>
 
@@ -32,7 +32,7 @@
                 </a>
                </div>
       @else
-              <div class="col">
+              <div class="col ml-5" >
 
                 @if(auth()->user())
 
@@ -70,7 +70,7 @@
                         {{$user->followers->count()}} 
                       </strong>
                        @if($user->followers->count() > 0)
-                        <span class="font-weight-bold" style="cursor: pointer;" data-toggle="modal" data-target="#showFollowers">
+                        <span class="font-weight-bold modalShowFollowers" style="cursor: pointer;">
                           followers
                         </span> 
                         @else
@@ -83,7 +83,7 @@
                         {{$user->following->count()}}
                       </strong> 
                        @if($user->following->count() > 0)
-                        <span class="font-weight-bold modalShow" style="cursor: pointer;" data-toggle="modal" data-target="#showFolloweing">
+                        <span class="font-weight-bold modalShowFollowing" style="cursor: pointer;" >
                           following
                         </span> 
                         @else
@@ -95,7 +95,7 @@
             </div>
             <div class="pt-4">
 
-               <h4 class="font-weight-bold">{{$user->name}}</h4>
+               <h5 class="font-weight-bold">{{$user->name}}</h5>
                <p>{!! $user->description !!}</p>
                <div><a href="{{$user->url}}" target="_tblanck"><strong>{{$user->url}}</strong></a></div>
 
@@ -154,20 +154,23 @@
 <!-- ------------------------------------------------------ -->
 
 
-@if($user->followers->count() > 0)
-  <div class="modal fade" id="showFollowers" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true" >
+@if($followers->count() > 0)
+  <div class="modal fade" id="showFollowers" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true" data-username="{{$user->username}}">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLongTitle">Following</h5>
+          <h5 class="modal-title" id="exampleModalLongTitle">Followers</h5>
+         <div class="text-center loadingLimitFollowers mt-1 d-none">
+           <i class="fas fa-sync fa-spin  fa-1x  ml-2 "></i>
+         </div>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
         <div class="modal-body " style="max-height: 350px;overflow: auto;">
 
-       @foreach($user->followers as $profile)   
-           <div class="row showFollowersModal" data-id="{{$profile->id}}">
+       @foreach($followers as $profile)   
+           <div class="row showFollowersModal followers-row-{{$profile->id}}" data-id="{{$profile->id}}" id="{{$profile->id}}">
               <div class="col-9">
                 <img src="{{asset($profile->img)}}" class="rounded-circle p-2" style="width: 60px;height: 60px">
                 <h5 class="d-inline ml-1">
@@ -193,10 +196,14 @@
                 <?php 
                       $status = in_array($profile->id, user()->following->pluck('id')->toArray()) ? true : false;
                  ?>
+
+               @if($profile->username != user()->username)  
                 <button class="btn btn-primary mt-2" id="modal-follow-unfollow" data-status="{{$status ? 'following' : 'follow'}}">
                     <span class="textButton ">{{$status ? 'Following' : 'Follow'}}</span>
                     <i class="fas fa-sync fa-spin loadingFollow fa-1x d-none"></i>
                 </button>
+
+               @endif 
 
                 @endif   
 
@@ -213,6 +220,7 @@
           </div>      
        @endforeach         
         </div>
+
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
         </div>
@@ -224,20 +232,24 @@
 <!-- ----------------------following------------------------------ -->
 
 
-@if($user->following->count() > 0)
-  <div class="modal fade" id="showFolloweing" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true" >
-    <div class="modal-dialog" role="document">
+@if($following->count() > 0)
+  <div class="modal fade" 
+  id="showFolloweing" data-username="{{$user->username}}" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenter" aria-hidden="true" >
+  <div class="modal-dialog " role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLongTitle">Following</h5>
+          <h5 class="modal-title" id="exampleModalCenter">Following</h5>
+         <div class="text-center loadingLimitFollowing d-none mt-1">
+           <i class="fas fa-sync fa-spin  fa-1x  ml-2 "></i>
+         </div>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
-        <div class="modal-body " style="max-height: 350px;overflow: auto;">
-
-       @foreach($user->following as $profile)   
-           <div class="row showFolloweingModal" data-id="{{$profile->id}}">
+        <div  class="modal-body"  style="max-height: 350px;overflow: auto;">
+ 
+       @foreach($following as $profile)   
+           <div class="row showFolloweingModal followingRow-{{$profile->id}}" data-id="{{$profile->id}}" id="{{$profile->id}}">
               <div class="col-9">
                 <img src="{{asset($profile->img)}}" class="rounded-circle p-2" style="width: 60px;height: 60px">
                 <h5 class="d-inline ml-1">
@@ -262,10 +274,14 @@
                 <?php 
                       $status = in_array($profile->id, user()->following->pluck('id')->toArray()) ? true : false;
                  ?>
-                <button class="btn btn-primary mt-2" id="modal-follow-unfollow" data-status="{{$status ? 'following' : 'follow'}}">
-                    <span class="textButton ">{{$status ? 'Following' : 'Follow'}}</span>
-                    <i class="fas fa-sync fa-spin loadingFollow fa-1x d-none"></i>
-                </button>
+               
+                 @if($profile->username != user()->username)
+
+                    <button class="btn btn-primary mt-2" id="modal-follow-unfollow" data-status="{{$status ? 'following' : 'follow'}}">
+                        <span class="textButton ">{{$status ? 'Following' : 'Follow'}}</span>
+                        <i class="fas fa-sync fa-spin loadingFollow fa-1x d-none"></i>
+                    </button>
+                  @endif  
 
                 @endif   
 
@@ -280,8 +296,10 @@
 
             </div>          
           </div>      
-       @endforeach         
+       @endforeach 
+
         </div>
+ 
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
         </div>
@@ -293,279 +311,4 @@
 
 @endsection
 
-@push('scripts')
-
-<script type="text/javascript">
-  $(function(){
-     var token = $('meta[name="csrf-token"]').attr('content');
-     var login = "/login";
-
-
-  $(document).on('click',"#modal-unfollow",function(){
-    var modaldelete = $(this).closest(".modal .showFolloweingModal");
-    var profileId = $(modaldelete).data("id");
-    var textButton = $(modaldelete).find(".textButton");
-    var loading = $(modaldelete).find(".loadingFollow");
-
-                $.ajax({
-                   url:"/user/unfollow",
-                   method:'post',
-                   datatype:'json',
-                   data:{_token:token,profile_id:profileId},
-                   beforeSend:function(){
-                         $(textButton).addClass("d-none");
-                         $(loading).removeClass("d-none");
-                   },
-                   success:function(data){
-
-                     $(loading).addClass("d-none"); 
-                     $(modaldelete).remove();
-                  if($.isNumeric($('.change_count_following').text())){
-                       var getcount = parseInt($('.change_count_following').text() ) - 1 ;
-                       $('.change_count_following').text(getcount);
-                         
-                         if(getcount == 0){
-                           $('.modalShow').attr('data-target','');
-                           $("#showFolloweing").modal('hide');
-                         }
-
-                     }
-                   },
-                   error:function(data){
-                     if(data.status == 401){
-                        window.location.href = login;
-                     }
-                   }
-               });
-
-}); 
-
-//---------------------------------------------------------------------
-
-     $(document).on('click',"#modal-follow-unfollow",function(){
-         
-         var profileId = $(this).closest(".modal .showFolloweingModal").data("id");
-         var loading = $(this).closest(".modal .showFolloweingModal").find(".loadingFollow");
-         var textButton = $(this).closest(".modal .showFolloweingModal").find(".textButton");
-         var status = $(this).closest(".modal .showFolloweingModal").find("#modal-follow-unfollow");
-
-
-            
-            if(status.attr('data-status') == 'following'){  //sen request to unfollow
-               
-              
-
-
-                 $.ajax({
-
-                   url:"/user/unfollow",
-                   method:'post',
-                   datatype:'json',
-                   data:{_token:token,profile_id:profileId},
-                   beforeSend:function(){
-                         $(textButton).addClass("d-none");
-                         $(loading).removeClass("d-none");
-                   },
-                   success:function(data){
-
-                     $(loading).addClass("d-none"); 
-                     $(textButton).removeClass("d-none").text('Follow');
-
-                     status.attr('data-status','follow') 
-
-                    
-                   },
-                   error:function(data){
-
-                     if(data.status == 401){
-
-                        window.location.href = login;
-                     }
-
-                     status.attr('data-status','following');
-                     $(textButton).removeClass("d-none").text('Following');
-                     $(loading).addClass("d-none"); 
-                   }
-                
-               });
-
-            }  // end if status == following
-           
-  //----------------------------------------------------------
-
-              if(status.attr('data-status') == 'follow'){  //sen request to follow
-             
-                
-
-                  
-                 $.ajax({
-
-                   url:"/user/follow",
-                   method:'post',
-                   datatype:'json',
-                   data:{_token:token,profile_id:profileId},
-                   beforeSend:function(){
-                         $(textButton).addClass("d-none");
-                         $(loading).removeClass("d-none");
-                   },
-                   success:function(data){
-
-                     $(loading).addClass("d-none"); 
-                     $(textButton).removeClass("d-none").text('Following');
-
-                     status.attr('data-status','following') 
-
-                    
-                   },
-                   error:function(data){
-
-                     if(data.status == 401){
-
-                        window.location.href = login;
-                     }
-                     $(loading).addClass("d-none"); 
-                     $(status).attr('data-status','follow');
-                     $(textButton).removeClass("d-none").text('Follow');
-
-                   }
-                
-               });
-
-            }  // end if status == following
-
-
-     }); // end button follow unfollow
-
-//----------------------------------------------------
-
-   $(document).on('click',"#modal-follow-unfollow",function(){
-         
-         var profileId = $(this).closest(".modal .showFollowersModal").data("id");
-         var loading = $(this).closest(".modal .showFollowersModal").find(".loadingFollow");
-         var textButton = $(this).closest(".modal .showFollowersModal").find(".textButton");
-         var status = $(this).closest(".modal .showFollowersModal").find("#modal-follow-unfollow");
-         var statusProfile = $(this).closest(".modal .showFollowersModal").find("#modal-follow-unfollow");
-
-
-         
-            
-            if(status.attr('data-status') == 'following'){  //sen request to unfollow
-               
-              
-
-
-                 $.ajax({
-
-                   url:"/user/unfollow",
-                   method:'post',
-                   datatype:'json',
-                   data:{_token:token,profile_id:profileId},
-                   beforeSend:function(){
-                         $(textButton).addClass("d-none");
-                         $(loading).removeClass("d-none");
-                   },
-                   success:function(data){
-
-                     $(loading).addClass("d-none"); 
-                     $(textButton).removeClass("d-none").text('Follow');
-
-                     status.attr('data-status','follow') 
-
-                     if(statusProfile.attr('data-profile') == 'true'){
-
-                      if($.isNumeric($('.change_count_following').text())){
-                           var getcount = parseInt($('.change_count_following').text() ) - 1 ;
-                           $('.change_count_following').text(getcount);
-                             
-                             if(getcount == 0){
-                               $('.modalShow').attr('data-target','');
-                               $("#showFolloweing").modal('hide');
-                             }
-
-                         }
-
-                     }
-
-                    
-                   },
-                   error:function(data){
-
-                     if(data.status == 401){
-
-                        window.location.href = login;
-                     }
-
-                     status.attr('data-status','following');
-                     $(textButton).removeClass("d-none").text('Following');
-                     $(loading).addClass("d-none"); 
-                   }
-                
-               });
-
-            }  // end if status == following
-           
-  //----------------------------------------------------------
-
-              if(status.attr('data-status') == 'follow'){  //sen request to follow
-             
-                
-
-                  
-                 $.ajax({
-
-                   url:"/user/follow",
-                   method:'post',
-                   datatype:'json',
-                   data:{_token:token,profile_id:profileId},
-                   beforeSend:function(){
-                         $(textButton).addClass("d-none");
-                         $(loading).removeClass("d-none");
-                   },
-                   success:function(data){
-
-                     $(loading).addClass("d-none"); 
-                     $(textButton).removeClass("d-none").text('Following');
-
-                     status.attr('data-status','following') 
-                   if(statusProfile.attr('data-profile') == 'true'){
-
-                      if($.isNumeric($('.change_count_following').text())){
-                           var getcount = parseInt($('.change_count_following').text() ) + 1 ;
-                           $('.change_count_following').text(getcount);
-
-                         }
-                       }  
-
-                    
-                   },
-                   error:function(data){
-
-                     if(data.status == 401){
-
-                        window.location.href = login;
-                     }
-                     $(loading).addClass("d-none"); 
-                     $(status).attr('data-status','follow');
-                     $(textButton).removeClass("d-none").text('Follow');
-
-                   }
-                
-               });
-
-            }  // end if status == following
-
-
-     }); // end button follow unfollow
-
-
-
-//---------------------------------------------------
-
-  });
-</script>
-
-
-
-
-@endpush
 

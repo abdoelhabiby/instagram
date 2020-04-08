@@ -32,6 +32,9 @@ Route::group(['middleware'=>'auth'],function(){
 	    Route::post('/add/comment',"CommentsController@commentIndex");
 	    Route::post('/user/comment/delete',"CommentsController@destroy")->name('delete');
 
+	    Route::get("/user/following","ProfileController@getfollowing");
+	    Route::get("/user/followers","ProfileController@getfollowers");
+
 
 
 });
